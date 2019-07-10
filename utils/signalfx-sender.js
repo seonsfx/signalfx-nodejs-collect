@@ -8,29 +8,33 @@ module.exports = class SignalFxSender {
     }
 
     send(metrics) {
-        let cumulative_counters = [];
-        let gauges = [];
-        let counters = [];
+    //     if (!metrics || metrics.length == 0) {
+    //         return;
+    //     }
 
-        for (let i = 0; i < metrics.length; i++) {
-            switch (metrics[i].type) {
-                case 'cumulative_counters':
-                    cumulative_counters.push(convertMetric(metrics[i]));
-                    break;
-                case 'gauges':
-                    gauges.push(convertMetric(metrics[i]));
-                    break;
-                case 'counters':
-                    counters.push(convertMetric(metrics[i]));
-                    break;
-            }
-        }
+    //     let cumulative_counters = [];
+    //     let gauges = [];
+    //     let counters = [];
 
-        this.client.send({
-            cumulative_counters,
-            gauges,
-            counters
-        });
+    //     for (let i = 0; i < metrics.length; i++) {
+    //         switch (metrics[i].type) {
+    //             case 'cumulative_counters':
+    //                 cumulative_counters.push(convertMetric(metrics[i]));
+    //                 break;
+    //             case 'gauges':
+    //                 gauges.push(convertMetric(metrics[i]));
+    //                 break;
+    //             case 'counters':
+    //                 counters.push(convertMetric(metrics[i]));
+    //                 break;
+    //         }
+    //     }
+
+    //     this.client.send({
+    //         cumulative_counters,
+    //         gauges,
+    //         counters
+    //     });
     }
 }
 

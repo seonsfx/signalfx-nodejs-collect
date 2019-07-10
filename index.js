@@ -1,11 +1,10 @@
 'use strict'
 
 const eventLoopStats = require('event-loop-stats');
-const simpleStatsServer = require('simple-stats-server');
-const stats = simpleStatsServer();
 const gc = (require('gc-stats'))();
 const memwatch = require('memwatch-next');
 const cpuUsage = require('./utils/cpu-usage');
+const memoryUsage = require('./utils/memory-usage');
 const SignalFxSender = require('./utils/signalfx-sender');
 
 const adapters = require('./adapters');
@@ -18,9 +17,12 @@ module.exports = class SignalFxCollect {
         this._registerEventHandlers();
     }
 
-    getMiddleware() {
-        console.log('express middleware');
-        return this._getExpressMiddleware();
+    getMiddleware(framework) {
+        switch (framework) {
+            case 'express':
+                return this._getExpressMiddleware();
+        }
+        console.error(`${framework} is not supported`);
     }
 
     _startCollectLoop(interval) {
@@ -28,12 +30,8 @@ module.exports = class SignalFxCollect {
             let metrics = [];
 
             metrics.push(adapters.cpuUsage(cpuUsage()));
+            metrics.push(adapters.memoryUsage(memoryUsage()));
             metrics.push(adapters.eventLoop(eventLoopStats.sense()));
-            // TODO : handle memory in-house
-
-            stats.get('/memory', (err, result) => {
-                console.log(result);
-            });
 
             this.sender.send(metrics);
         }, interval);
@@ -41,25 +39,23 @@ module.exports = class SignalFxCollect {
 
     _registerEventHandlers() {
         gc.on('stats', stats => {
-            console.log('GC!');
             this.sender.send(adapters.gc(stats));
         });
-
         memwatch.on('leak', info => {
-            console.log('Leak!');
             this.sender.send(adapters.memoryLeak(info));
         });
-
     }
 
     _getExpressMiddleware() {
         let reqTimestamp;
         return (req, res, next) => {
-            reqTimestamp = new Date();
-            res.once('finish', function() {
-                let resTimestamp = new Date();
-                console.log("latency is " + (resTimestamp.getTime() - reqTimestamp.getTime()));
+            reqTimestamp = Date.now();
+
+            res.once('finish', function () {
+                let resTimestamp = Date.now();
+                console.log("latency is " + (resTimestamp - reqTimestamp));
             });
+            
             next();
         };
     }
