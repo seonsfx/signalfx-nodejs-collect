@@ -1,0 +1,17 @@
+{
+  "name": "signalfx-nodejs-collect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "event-loop-stats": "^1.2.0",
+    "gc-stats": "^1.4.0",
+    "signalfx": "^6.0.1",
+    "simple-stats-server": "0.0.5"
+  }
+}
