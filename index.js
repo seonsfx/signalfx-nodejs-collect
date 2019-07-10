@@ -1,62 +1,46 @@
-'use strict'
+'use strict';
 
-const eventLoopStats = require('event-loop-stats');
-const gc = (require('gc-stats'))();
-const memwatch = require('memwatch-next');
-const cpuUsage = require('./utils/cpu-usage');
-const memoryUsage = require('./utils/memory-usage');
 const SignalFxSender = require('./utils/signalfx-sender');
-
-const adapters = require('./adapters');
+const collect = require('./collect');
+const middleware = require('./middleware');
 
 module.exports = class SignalFxCollect {
-    start(config) {
-        this.sender = new SignalFxSender("ORG_TOKEN");
-
-        this._startCollectLoop(3000);
-        this._registerEventHandlers();
+  constructor(config) {
+    if (!config) {
+      throw "Config";
+    }
+    if (!config.accessToken) {
+      throw "accessToken";
     }
 
-    getMiddleware(framework) {
-        switch (framework) {
-            case 'express':
-                return this._getExpressMiddleware();
-        }
-        console.error(`${framework} is not supported`);
+    this.accessToken = config.accessToken;
+  }
+
+  start() {
+    this.sender = new SignalFxSender(this.accessToken);
+
+    this._startCollectLoop(3000);
+    this._registerEventHandlers();
+  }
+
+  getMiddleware(framework) {
+    switch (framework) {
+      case 'express':
+        return middleware.express(metrics => this.sender.send(metrics));
     }
+    console.error(`${framework} is not supported.`);
+  }
 
-    _startCollectLoop(interval) {
-        setInterval(() => {
-            let metrics = [];
+  _startCollectLoop(interval) {
+    setInterval(() => {
+      this.sender.send(collect.collect());
+    }, interval);
+  }
 
-            metrics.push(adapters.cpuUsage(cpuUsage()));
-            metrics.push(adapters.memoryUsage(memoryUsage()));
-            metrics.push(adapters.eventLoop(eventLoopStats.sense()));
+  _registerEventHandlers() {
+    collect.registerEvent('gc');
+    collect.registerEvent('memleak');
 
-            this.sender.send(metrics);
-        }, interval);
-    }
-
-    _registerEventHandlers() {
-        gc.on('stats', stats => {
-            this.sender.send(adapters.gc(stats));
-        });
-        memwatch.on('leak', info => {
-            this.sender.send(adapters.memoryLeak(info));
-        });
-    }
-
-    _getExpressMiddleware() {
-        let reqTimestamp;
-        return (req, res, next) => {
-            reqTimestamp = Date.now();
-
-            res.once('finish', function () {
-                let resTimestamp = Date.now();
-                console.log("latency is " + (resTimestamp - reqTimestamp));
-            });
-            
-            next();
-        };
-    }
+    collect.getEmitter().on('metrics', metrics => this.sender.send(metrics));
+  }
 }
