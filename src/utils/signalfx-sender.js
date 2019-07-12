@@ -41,7 +41,6 @@ module.exports = class SignalFxSender {
   }
 
   sendEvent(event) {
-    delete event.event;
     event.category = this.client.EVENT_CATEGORIES.USER_DEFINED;
 
     this.client.sendEvent(event);
