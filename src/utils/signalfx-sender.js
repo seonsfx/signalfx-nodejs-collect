@@ -21,15 +21,15 @@ module.exports = class SignalFxSender {
         continue;
       }
       switch (metrics[i].type) {
-        case 'cumulative_counter':
-          cumulative_counters.push(convertMetric(metrics[i]));
-          break;
-        case 'gauge':
-          gauges.push(convertMetric(metrics[i]));
-          break;
-        case 'counter':
-          counters.push(convertMetric(metrics[i]));
-          break;
+      case 'cumulative_counter':
+        cumulative_counters.push(convertMetric(metrics[i]));
+        break;
+      case 'gauge':
+        gauges.push(convertMetric(metrics[i]));
+        break;
+      case 'counter':
+        counters.push(convertMetric(metrics[i]));
+        break;
       }
     }
 
@@ -39,7 +39,14 @@ module.exports = class SignalFxSender {
       counters
     });
   }
-}
+
+  sendEvent(event) {
+    delete event.event;
+    event.category = this.client.EVENT_CATEGORIES.USER_DEFINED;
+
+    this.client.sendEvent(event);
+  }
+};
 
 function convertMetric(metric) {
   let converted = {

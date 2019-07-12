@@ -15,4 +15,4 @@ module.exports = function () {
     user: percentage_user,
     total: percentage_system + percentage_user
   };
-}
+};

@@ -1,13 +1,18 @@
 {
-  "name": "signalfx-nodejs-collect",
+  "name": "signalfx-collect",
   "version": "1.0.0",
-  "description": "",
+  "description": "SignalFx library to collect nodejs metrics and report to SignalFx",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint src",
+    "test": "mocha"
   },
-  "author": "",
-  "license": "ISC",
+  "author": {
+    "name": "SignalFx, Inc",
+    "email": "info@signalfx.com",
+    "url": "https://signalfx.com"
+  },
+  "license": "Apache Software License v2",
   "dependencies": {
     "event-loop-stats": "^1.2.0",
     "fqdn": "0.0.3",
@@ -18,6 +23,7 @@
   "devDependencies": {
     "assert": "^2.0.0",
     "chai": "^4.2.0",
+    "eslint": "^6.0.1",
     "mocha": "^6.1.4",
     "sinon": "^7.3.2"
   }

@@ -1,22 +1,11 @@
 'use strict';
 
-const fqdn = require('fqdn');
+const { METRIC_FAMILY, GC_TYPE } = require('../common/constants');
+const { getMetricObject, getBasicDimensions } = require('../common/helpers');
 
-const METRIC_FAMILY = 'nodejs';
-const METRIC_SOURCE = 'nodejs-collect';
-const GC_TYPE = [
-  null, "Scavange", "Mark/Sweep/Compact", null,
-  "IncrementalMarking", null, null, null,
-  "ProcessWeakCallbacks", null, null, null,
-  null, null, null, "All"
-];
+let basicDimensions = getBasicDimensions();
 
-let basicDimensions = {
-  host: fqdn(),
-  metric_source: METRIC_SOURCE
-};
-
-module.exports = {
+module.exports.metric = {
   cpuUsage: usage => {
     const prefix = `${METRIC_FAMILY}.cpu.utilization`;
     const timestamp = Date.now();
@@ -70,21 +59,37 @@ module.exports = {
       getMetricObject('counter', `${prefix}.rq_${request.status}`, 1, request.timestamp, basicDimensions),
       getMetricObject('gauge', `${prefix}.rq_size`, request.size, request.timestamp, basicDimensions)
     ];
-  },
-  addBasicDimensions: dimensions => {
-    Object.assign(basicDimensions, dimensions);
   }
 };
 
-function getMetricObject(type, metric, value, timestamp, dimensions) {
-  let obj = {
-    type,
-    metric,
-    value,
-    timestamp
-  };
-  if (dimensions) {
-    obj.dimensions = dimensions;
+module.exports.event = {
+  gc: stats => {
+    let eventObj = {
+      event: 'gc',
+      eventType: 'Garbage Collection happened',
+      properties: {
+        'size': stats.diff.totalHeapSize,
+        'pause': stats.pause
+      },
+      dimensions: basicDimensions,
+      timestamp: Date.now()
+    };
+    return eventObj;
+  },
+  memoryLeak: stats => {
+    let eventObj = {
+      event: 'memleak',
+      eventType: stats.reason,
+      properties: {
+        'size': stats.growth
+      },
+      dimensions: basicDimensions,
+      timestamp: Date.now()
+    };
+    return eventObj;
   }
-  return obj;
-}
+};
+
+module.exports.addBasicDimensions = dimensions => {
+  Object.assign(basicDimensions, dimensions);
+};

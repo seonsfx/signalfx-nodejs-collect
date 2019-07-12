@@ -10,4 +10,4 @@ module.exports = function () {
     },
     process: process.memoryUsage()
   };
-}
+};
