@@ -3,23 +3,26 @@
 const SignalFxSender = require('./utils/signalfx-sender');
 const collect = require('./collect');
 const middleware = require('./middleware');
+const adapters = require('./adapters');
 
 module.exports = class SignalFxCollect {
   constructor(config) {
     if (!config) {
-      throw "Config";
+      throw "Config object is required.";
     }
     if (!config.accessToken) {
-      throw "accessToken";
+      throw "accessToken is required.";
     }
 
     this.accessToken = config.accessToken;
+    this.interval = config.interval || 1000;
+    adapters.addBasicDimensions({'myKey': 'myVal'});
   }
 
   start() {
     this.sender = new SignalFxSender(this.accessToken);
 
-    this._startCollectLoop(3000);
+    this._startCollectLoop(this.interval);
     this._registerEventHandlers();
   }
 

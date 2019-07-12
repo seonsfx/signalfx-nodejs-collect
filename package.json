@@ -2,7 +2,7 @@
   "name": "signalfx-nodejs-collect",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,8 +10,15 @@
   "license": "ISC",
   "dependencies": {
     "event-loop-stats": "^1.2.0",
+    "fqdn": "0.0.3",
     "gc-stats": "^1.4.0",
     "memwatch-next": "^0.3.0",
     "signalfx": "^6.0.1"
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "sinon": "^7.3.2"
   }
 }
