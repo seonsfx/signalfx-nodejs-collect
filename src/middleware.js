@@ -17,7 +17,7 @@ module.exports = {
           timestamp: requestStart
         };
 
-        cb(adapters.http(request));
+        cb(adapters.metric.http(request));
       });
 
       next();
