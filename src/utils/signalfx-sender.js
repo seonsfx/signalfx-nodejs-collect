@@ -9,7 +9,7 @@ module.exports = class SignalFxSender {
       this.client = auth.client;
     }
     else {
-      this.client = new signalfx.Ingest(auth.token);
+      this.client = new signalfx.Ingest(auth.accessToken);
     }
     this.interval = interval;
     this.datapointStore = new DatapointStore();
