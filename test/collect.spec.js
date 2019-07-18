@@ -15,10 +15,10 @@ const memwatch = require('memwatch-next');
 
 describe('collect', () => {
   before(() => {
-    sinon.stub(cpuUsage, 'sense').callsFake(() => {
+    sinon.stub(cpuUsage, 'get').callsFake(() => {
       return testData.cpuUsage;
     });
-    sinon.stub(memoryUsage, 'sense').callsFake(() => {
+    sinon.stub(memoryUsage, 'get').callsFake(() => {
       return testData.memoryUsage;
     });
     sinon.stub(eventLoopStats, 'sense').callsFake(() => {
@@ -57,9 +57,9 @@ describe('registerEvent', () => {
 
     sinon.assert.called(spy);
     let dispatchedMetrics = spy.args[0][0];
-    chai.expect(dispatchedMetrics[0]).to.include({'metric': 'nodejs.memory.gc.size'});
+    chai.expect(dispatchedMetrics[0]).to.include({ 'metric': 'nodejs.memory.gc.size' });
     let dispatchedEvent = spy.args[0][1];
-    chai.expect(dispatchedEvent).to.include({'event': 'gc'});
+    chai.expect(dispatchedEvent).to.include({ 'event': 'gc' });
   });
   it('should dispatch memleak event', () => {
     let spy = sinon.spy();
@@ -69,8 +69,8 @@ describe('registerEvent', () => {
 
     sinon.assert.called(spy);
     let dispatchedMetrics = spy.args[0][0];
-    chai.expect(dispatchedMetrics[0]).to.include({'metric': 'nodejs.memory.heap.leak'});
+    chai.expect(dispatchedMetrics[0]).to.include({ 'metric': 'nodejs.memory.heap.leak' });
     let dispatchedEvent = spy.args[0][1];
-    chai.expect(dispatchedEvent).to.include({'event': 'memleak'});
+    chai.expect(dispatchedEvent).to.include({ 'event': 'memleak' });
   });
 });
